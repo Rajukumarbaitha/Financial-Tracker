@@ -1,93 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { X, Plus, Calendar, Clock, Hash, Search, ChevronDown, Settings } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Plus, Calendar, Clock, Hash, Search, ChevronDown, Settings, Lock, User, Mail } from 'lucide-react';
 
 const CATEGORIES = {
-  FOOD: { icon: '🍔', label: 'Food & Dining' },
+  FOOD: { icon: '🍔', label: 'Food' },
   TRANSPORT: { icon: '🚗', label: 'Transport' },
-  SHOPPING: { icon: '🛍️', label: 'Shopping' },
-  BILLS: { icon: '📃', label: 'Bills' },
+  SHOPPING: { icon: '🥦', label: 'Groceries' },
+  BILLS: { icon: '💼', label: 'Business' },
   RENT: { icon: '🏠', label: 'Rent' },
   TRAVEL: { icon: '✈️', label: 'Travel' },
   ENTERTAINMENT: { icon: '🎬', label: 'Entertainment' },
   HEALTH: { icon: '⚕️', label: 'Healthcare' },
-  OTHER: { icon: '📌', label: 'Other' }
+  OTHER: { icon: '📌', label: 'Other' },
 };
 
-const useLocalStorage = (key, initialValue) => {
-  const [storedValue, setStoredValue] = useState(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error(error);
-      return initialValue;
-    }
-  });
+const AuthPage = ({ onSignIn }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(key, JSON.stringify(storedValue));
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (email === 'test@example.com' && password === 'password') {
+      onSignIn({ email, username: 'TestUser' });
+    } else {
+      alert('Invalid credentials');
     }
-  }, [key, storedValue]);
-
-  return [storedValue, setStoredValue];
-};
-
-const TransactionList = ({ transactions, onDeleteTransaction }) => {
-  const groupedTransactions = transactions.reduce((groups, transaction) => {
-    const date = transaction.date;
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-    groups[date].push(transaction);
-    return groups;
-  }, {});
+  };
 
   return (
-    <div className="space-y-6">
-      {Object.entries(groupedTransactions).map(([date, dateTransactions]) => (
-        <div key={date}>
-          <div className="flex justify-between text-sm text-gray-400 mb-4">
-            <div>{date}</div>
-            <div>
-              ₹ {Math.abs(dateTransactions.reduce((sum, t) => sum + t.amount, 0)).toLocaleString()}
-            </div>
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+      <div className="bg-gray-800 rounded-2xl p-8 w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-8">Sign In</h2>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              className="w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            />
           </div>
           
-          {dateTransactions.map((transaction) => (
-            <div
-              key={transaction.id}
-              className="flex items-center justify-between mb-4 opacity-100 transition-opacity duration-200"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-700 rounded-2xl flex items-center justify-center text-xl">
-                  {CATEGORIES[transaction.category]?.icon || transaction.icon}
-                </div>
-                <div>
-                  <div className="font-medium">{transaction.name}</div>
-                  <div className="text-sm text-gray-400">
-                    {transaction.time} • {transaction.note}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className={transaction.amount > 0 ? 'text-green-500' : 'text-white'}>
-                  {transaction.amount > 0 ? '+' : '-'}₹ {Math.abs(transaction.amount).toLocaleString()}
-                </div>
-                <button 
-                  onClick={() => onDeleteTransaction(transaction.id)}
-                  className="text-gray-400 hover:text-red-500 transition-colors"
-                  aria-label="Delete transaction"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      ))}
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            />
+          </div>
+          
+          <button
+            type="submit"
+            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors"
+          >
+            Sign In
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
@@ -108,6 +85,10 @@ const TransactionModal = ({ isOpen, onClose, onAddTransaction }) => {
     }
   };
 
+  const handleBackspace = () => {
+    setCurrentAmount(currentAmount.slice(0, -1) || '0');
+  };
+
   const handleAddTransaction = () => {
     if (!selectedCategory) {
       alert('Please select a category');
@@ -121,187 +102,217 @@ const TransactionModal = ({ isOpen, onClose, onAddTransaction }) => {
 
     const newTransaction = {
       id: Date.now(),
-      date: new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase(),
-      name: CATEGORIES[selectedCategory].label,
-      amount: transactionType === 'EXPENSE' ? -parseFloat(currentAmount) : parseFloat(currentAmount),
-      type: transactionType.toLowerCase(),
-      time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      type: note || CATEGORIES[selectedCategory].label,
       category: selectedCategory,
-      note: note.trim() || 'No note',
-      icon: CATEGORIES[selectedCategory].icon
+      amount: transactionType === 'EXPENSE' ? -parseFloat(currentAmount) : parseFloat(currentAmount),
+      date: new Date(),
+      note: note.trim(),
     };
 
     onAddTransaction(newTransaction);
-    resetForm();
     onClose();
-  };
-
-  const resetForm = () => {
-    setCurrentAmount('0');
-    setSelectedCategory(null);
-    setNote('');
-    setTransactionType('EXPENSE');
-    setShowCategories(false);
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => onClose()}>
-      <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setTransactionType('EXPENSE')}
-              className={`px-4 py-1.5 rounded-full text-sm transition-colors ${
-                transactionType === 'EXPENSE' 
-                  ? 'bg-gray-700 text-white' 
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              EXPENSE
-            </button>
-            <button 
-              onClick={() => setTransactionType('INCOME')}
-              className={`px-4 py-1.5 rounded-full text-sm transition-colors ${
-                transactionType === 'INCOME' 
-                  ? 'bg-gray-700 text-white' 
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              INCOME
-            </button>
-          </div>
-          <button 
-            onClick={() => {
-              resetForm();
-              onClose();
-            }}
-            className="text-gray-400 hover:text-white transition-colors"
-            aria-label="Close modal"
-          >
-            <X size={20} />
+    <div 
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" 
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}
+    >
+      <div 
+        className="bg-gray-800 rounded-2xl p-6 w-full max-w-lg" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">
+            {transactionType === 'EXPENSE' ? 'Add Expense' : 'Add Income'}
+          </h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <X size={24} />
           </button>
         </div>
 
-        <div className="text-center mb-8">
-          <div className="text-gray-400 text-sm mb-2">
-            Adding {transactionType.toLowerCase()}
-          </div>
-          <div className="text-4xl font-bold mb-3">₹ {currentAmount}</div>
-          <div className="relative">
-            <input
-              type="text"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Add a note"
-              className="w-full px-4 py-2 bg-gray-700 rounded-lg text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
+        <div className="flex mb-4">
+          <button
+            onClick={() => setTransactionType('EXPENSE')}
+            className={`w-1/2 py-2 ${
+              transactionType === 'EXPENSE' 
+                ? 'bg-red-500 text-white' 
+                : 'bg-gray-700 text-gray-400'
+            }`}
+          >
+            Expense
+          </button>
+          <button
+            onClick={() => setTransactionType('INCOME')}
+            className={`w-1/2 py-2 ${
+              transactionType === 'INCOME' 
+                ? 'bg-green-500 text-white' 
+                : 'bg-gray-700 text-gray-400'
+            }`}
+          >
+            Income
+          </button>
+        </div>
+
+        <div className="text-center mb-6">
+          <div className="text-4xl font-bold">
+            ₹ {currentAmount}
           </div>
         </div>
 
-        <div className="flex justify-between items-center mb-4 text-sm">
-          <div className="flex items-center gap-2">
-            <Calendar size={16} />
-            <span className="text-gray-400">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock size={16} />
-            <span className="text-gray-400">
-              {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-            </span>
-          </div>
-          <div className="relative">
-            <button 
-              onClick={() => setShowCategories(!showCategories)}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-              aria-expanded={showCategories}
-              aria-haspopup="true"
-            >
-              <Hash size={16} />
-              <span>{selectedCategory ? CATEGORIES[selectedCategory].label : 'Select Category'}</span>
-              <ChevronDown size={16} className={`transform transition-transform ${showCategories ? 'rotate-180' : ''}`} />
-            </button>
-            {showCategories && (
-              <div 
-                className="absolute top-full mt-2 w-48 bg-gray-700 rounded-xl shadow-lg p-2 z-10"
-                role="listbox"
-              >
-                {Object.entries(CATEGORIES).map(([key, { icon, label }]) => (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      setSelectedCategory(key);
-                      setShowCategories(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-600 rounded-lg transition-colors"
-                    role="option"
-                    aria-selected={selectedCategory === key}
-                  >
-                    <span>{icon}</span>
-                    <span>{label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="relative mb-4">
+          <input
+            type="text"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Add a note"
+            className="w-full bg-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0].map((num) => (
+        <div className="relative mb-4">
+          <button 
+            onClick={() => setShowCategories(!showCategories)}
+            className="w-full bg-gray-700 rounded-lg px-4 py-2 flex justify-between items-center"
+          >
+            {selectedCategory 
+              ? `${CATEGORIES[selectedCategory].icon} ${CATEGORIES[selectedCategory].label}` 
+              : 'Select Category'}
+            <ChevronDown size={20} />
+          </button>
+
+          {showCategories && (
+            <div className="absolute z-10 w-full bg-gray-700 rounded-lg mt-1 max-h-64 overflow-y-auto">
+              {Object.entries(CATEGORIES).map(([key, { icon, label }]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setSelectedCategory(key);
+                    setShowCategories(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
+                >
+                  <span className="mr-2">{icon}</span> {label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'C'].map((num) => (
             <button
               key={num}
-              onClick={() => handleNumberInput(num.toString())}
-              className="bg-gray-700 h-12 rounded-xl font-medium hover:bg-gray-600 transition-colors"
+              onClick={() => 
+                num === 'C' 
+                  ? handleBackspace() 
+                  : handleNumberInput(num)
+              }
+              className="bg-gray-700 py-3 rounded-lg text-xl hover:bg-gray-600"
             >
               {num}
             </button>
           ))}
-          <button
-            onClick={handleAddTransaction}
-            className="bg-green-500 h-12 rounded-xl hover:bg-green-600 transition-colors"
-          >
-            ✓
-          </button>
         </div>
+
+        <button 
+          onClick={handleAddTransaction}
+          className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600"
+        >
+          Add Transaction
+        </button>
       </div>
     </div>
   );
 };
 
 const FinancialTracker = () => {
-  const [transactions, setTransactions] = useLocalStorage('transactions', []);
+  const [user, setUser] = useState(null);
+  const [transactions, setTransactions] = useState([
+    {
+      id: 1,
+      type: 'Indigo Refund',
+      category: 'TRAVEL',
+      amount: 3000,
+      date: new Date('2024-02-15T04:42:00'),
+      note: '',
+    },
+    {
+      id: 2,
+      type: 'Flight Booking',
+      category: 'TRANSPORT',
+      amount: -6414,
+      date: new Date('2024-02-15T04:42:00'),
+      note: '',
+    },
+    {
+      id: 3,
+      type: 'Rent',
+      category: 'RENT',
+      amount: -22000,
+      date: new Date('2024-02-15T04:42:00'),
+      note: '',
+    },
+    {
+      id: 4,
+      type: 'Taxplore Payment',
+      category: 'BILLS',
+      amount: -7000,
+      date: new Date('2024-02-15T04:42:00'),
+      note: '',
+    },
+  ]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filter, setFilter] = useState('ALL');
+
+  const handleSignIn = (userData) => {
+    setUser(userData);
+  };
 
   const handleAddTransaction = (newTransaction) => {
     setTransactions([newTransaction, ...transactions]);
   };
 
-  const handleDeleteTransaction = (id) => {
-    setTransactions(transactions.filter(t => t.id !== id));
+  const handleLogout = () => {
+    setUser(null);
   };
 
-  const filteredTransactions = transactions.filter(t => 
-    t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.note.toLowerCase().includes(searchQuery.toLowerCase())
+  // Check for login credentials
+  if (!user) {
+    return <AuthPage onSignIn={handleSignIn} />;
+  }
+
+  const filteredTransactions = transactions.filter((t) => 
+    (searchQuery === '' || 
+      t.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.note.toLowerCase().includes(searchQuery.toLowerCase())) &&
+    (filter === 'ALL' || 
+      (filter === 'INCOME' && t.amount > 0) ||
+      (filter === 'EXPENSE' && t.amount < 0))
   );
 
   const totalBalance = transactions.reduce((sum, t) => sum + t.amount, 0);
-  const monthlyExpense = transactions
-    .filter(t => t.amount < 0)
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-  const monthlyIncome = transactions
-    .filter(t => t.amount > 0)
-    .reduce((sum, t) => sum + t.amount, 0);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="p-6 flex justify-between items-center">
         <div className="text-2xl font-bold tracking-wider">PIGGYBANK</div>
         <div className="flex items-center gap-4">
+          <div className="text-gray-300 mr-4">
+            Welcome, {user.username}
+          </div>
+          <button
+            onClick={handleLogout}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            Logout
+          </button>
           <div className="relative">
             <input
               type="text"
@@ -312,13 +323,13 @@ const FinancialTracker = () => {
             />
             <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="bg-white text-black px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-medium hover:bg-gray-100 transition-colors"
           >
             <Plus size={16} /> Add New
           </button>
-          <button 
+          <button
             className="text-gray-400 hover:text-white transition-colors"
             aria-label="Settings"
           >
@@ -327,39 +338,57 @@ const FinancialTracker = () => {
         </div>
       </div>
 
-      {isModalOpen && (
-        <TransactionModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onAddTransaction={handleAddTransaction}
-        />
-      )}
+      <TransactionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddTransaction={handleAddTransaction}
+      />
 
       <div className="p-6">
         <div className="bg-gray-800 rounded-2xl p-6">
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <div>
-              <div className="text-gray-400 text-sm mb-1">Net Total</div>
-              <div className="text-2xl font-bold">₹ {totalBalance.toLocaleString()}</div>
-            </div>
-            <div>
-              <div className="text-gray-400 text-sm mb-1">Monthly Income</div>
-              <div className="text-2xl font-bold text-green-500">
-                ₹ {monthlyIncome.toLocaleString()}
-              </div>
-            </div>
-            <div>
-              <div className="text-gray-400 text-sm mb-1">Monthly Expense</div>
-              <div className="text-2xl font-bold text-red-500">
-                ₹ {monthlyExpense.toLocaleString()}
-              </div>
-            </div>
+          <div>
+            <div className="text-gray-400 text-sm mb-1">Net Total</div>
+            <div className="text-2xl font-bold">₹ {totalBalance.toLocaleString()}</div>
           </div>
+          
+          <div className="flex gap-2 mt-4">
+            {['ALL', 'INCOME', 'EXPENSE'].map((filterType) => (
+              <button
+                key={filterType}
+                onClick={() => setFilter(filterType)}
+                className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                  filter === filterType ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {filterType}
+              </button>
+            ))}
+          </div>
+        </div>
 
-          <TransactionList 
-            transactions={filteredTransactions}
-            onDeleteTransaction={handleDeleteTransaction}
-          />
+        <div className="mt-6">
+          {filteredTransactions.map((transaction) => (
+            <div 
+              key={transaction.id} 
+              className="flex justify-between items-center bg-gray-800 rounded-lg p-4 mb-2"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">
+                  {CATEGORIES[transaction.category]?.icon || '📌'}
+                </span>
+                <div>
+                  <div className="font-medium">{transaction.type}</div>
+                  {transaction.note && <div className="text-xs text-gray-400">{transaction.note}</div>}
+                  <div className="text-xs text-gray-400">
+                    {transaction.date.toLocaleDateString()} | {transaction.date.toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+              <div className={`font-bold ${transaction.amount > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                ₹ {Math.abs(transaction.amount).toLocaleString()}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
