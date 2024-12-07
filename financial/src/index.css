@@ -1,3 +1,193 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    /* background-color: #f9f9f9; */
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+    height: 100vh;
+  }
+  
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Full height of the viewport */
+    width: 100%;
+  }
+  
+  .login-box {
+    width: 100%;
+    max-width: 400px; /* Adjust based on your design */
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .welcome-text {
+    font-size: 24px;
+    color: #000;
+    text-align: left;
+  }
+  
+  .blue-text {
+    color: #007BFF;
+    font-weight: bold;
+  }
+  
+  .signup-option p {
+    font-size: 14px;
+  }
+  
+  .signup-option a {
+    color: #007BFF;
+    text-decoration: none;
+  }
+  
+  .signup-option a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Sign-in Text */
+  .sign-in-text {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  
+  /* Social Login Buttons */
+  .social-login {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .social-button {
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    padding: 10px;
+  }
+  
+  .social-button img {
+    width: 20px;
+    margin-right: 10px;
+  }
+  
+  .google {
+    flex: 1;
+    padding: 10px;
+  }
+  
+  .square-button {
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    justify-content: center;
+  }
+  
+  .facebook {
+    background-color: #1877f2;
+    border: none;
+  }
+  
+  .facebook img {
+    width: 20px;
+    margin-right: 0;
+  }
+  
+  .apple img {
+    margin-right: 0;
+  }
+  
+  /* Input Fields */
+  .input-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
+    color: #333;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  .input-field:focus {
+    outline: none;
+    border: 1px solid #007BFF;
+  }
+  
+  /* Forgot Password */
+  .forgot-password {
+    display: block;
+    text-align: right;
+    margin: 5px 0 15px;
+    font-size: 14px;
+    color: #007BFF;
+    text-decoration: none;
+  }
+  
+  .forgot-password:hover {
+    text-decoration: underline;
+  }
+  
+  /* Sign-In Button */
+  .sign-in-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007BFF;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .sign-in-button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Responsiveness */
+  @media screen and (max-width: 500px) {
+    .login-container {
+      width: 90%;
+      padding: 20px;
+    }
+  }
+  
