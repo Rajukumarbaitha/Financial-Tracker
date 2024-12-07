@@ -27,44 +27,44 @@ const CATEGORIES = {
 };
 
 const AuthPage = ({ onSignIn }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // Form validation logic
   const validateForm = () => {
     const newErrors = {};
 
-    if (!email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email is invalid";
+    if (!email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Invalid email format';
 
-    if (!password) newErrors.password = "Password is required";
-    else if (password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
+    if (!password) newErrors.password = 'Password is required';
+    else if (password.length < 6) newErrors.password = 'Password must be at least 6 characters long';
 
     if (isSignUp) {
-      if (!username) newErrors.username = "Username is required";
-      else if (username.length < 3)
-        newErrors.username = "Username must be at least 3 characters";
+      if (!username) newErrors.username = 'Username is required';
+      else if (username.length < 3) newErrors.username = 'Username must be at least 3 characters long';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
-    const users = JSON.parse(localStorage.getItem(USER_DATA_KEY) || "[]");
+    const users = JSON.parse(localStorage.getItem(USER_DATA_KEY) || '[]');
 
     if (isSignUp) {
       const existingUser = users.find((u) => u.email === email);
 
       if (existingUser) {
-        setErrors({ email: "User already exists" });
+        setErrors({ email: 'User already exists' });
         return;
       }
 
@@ -83,114 +83,110 @@ const AuthPage = ({ onSignIn }) => {
 
       onSignIn(newUser);
     } else {
-      const user = users.find(
-        (u) => u.email === email && u.password === password
-      );
+      const user = users.find((u) => u.email === email && u.password === password);
 
       if (user) {
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
         onSignIn(user);
       } else {
-        setErrors({ email: "Invalid credentials" });
+        setErrors({ email: 'Invalid credentials' });
       }
     }
+
+    // Clear form after submission
+    setUsername('');
+    setEmail('');
+    setPassword('');
+    setErrors({});
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="bg-gray-800 rounded-2xl p-8 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center mb-8">
-          {isSignUp ? "Sign Up" : "Sign In"}
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isSignUp && (
-            <div className="relative">
-              <User
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
-              />
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Username"
-                className={`w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                  errors.username
-                    ? "border-2 border-red-500"
-                    : "focus:ring-green-500"
-                }`}
-              />
-              {errors.username && (
-                <p className="text-red-500 text-sm mt-1">{errors.username}</p>
-              )}
-            </div>
-          )}
-
-          <div className="relative">
-            <Mail
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={20}
-            />
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              className={`w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                errors.email
-                  ? "border-2 border-red-500"
-                  : "focus:ring-green-500"
-              }`}
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            )}
-          </div>
-
-          <div className="relative">
-            <Lock
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={20}
-            />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className={`w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                errors.password
-                  ? "border-2 border-red-500"
-                  : "focus:ring-green-500"
-              }`}
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors"
-          >
-            {isSignUp ? "Sign Up" : "Sign In"}
-          </button>
-
-          <div className="text-center">
-            <button
-              type="button"
+    <div className="login-container">
+      <div className="login-box">
+      {/* Header Section */}
+      <div className="header">
+        <h1 className="welcome-text">Welcome to <span className="blue-text">PIGGYBANK</span></h1>
+        <div className="signup-option">
+          <p>
+            {isSignUp ? 'Already have an account?' : 'No Account?'} 
+            <button 
+              type="button" 
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setErrors({});
-              }}
-              className="text-green-400 hover:underline"
+                setUsername('');
+                setEmail('');
+                setPassword('');
+              }} 
+              className="toggle-auth-button"
             >
-              {isSignUp
-                ? "Already have an account? Sign In"
-                : "Need an account? Sign Up"}
+              {isSignUp ? 'Sign in' : 'Sign up'}
             </button>
-          </div>
-        </form>
+          </p>
+        </div>
+      </div>
+
+      {/* Dynamic Title */}
+      <h2 className="sign-in-text">{isSignUp ? 'Sign up' : 'Sign in'}</h2>
+
+      {/* Social Login Buttons */}
+      <div className="social-login">
+        <button className="social-button google">
+          <img src="https://img.icons8.com/color/48/google-logo.png" alt="Google Logo" />
+          Sign in with Google
+        </button>
+        <button className="social-button square-button facebook">
+          <img src="https://img.icons8.com/ios-filled/48/ffffff/facebook-new.png" alt="Facebook Logo" />
+        </button>
+        <button className="social-button square-button apple">
+          <img src="https://img.icons8.com/ios-filled/48/000000/mac-os.png" alt="Apple Logo" />
+        </button>
+      </div>
+
+      {/* Input Fields */}
+      <form className="login-form" onSubmit={handleSubmit}>
+        {isSignUp && (
+          <>
+            <label htmlFor="username" className="input-label">Enter your Username</label>
+            <input 
+              id="username" 
+              type="text" 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              placeholder="Enter your username" 
+              className={`input-field ${errors.username ? 'error-border' : ''}`} 
+            />
+            {errors.username && <p className="error-text">{errors.username}</p>}
+          </>
+        )}
+
+        <label htmlFor="email" className="input-label">Enter your Email</label>
+        <input 
+          id="email" 
+          type="email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          placeholder="Enter your email" 
+          className={`input-field ${errors.email ? 'error-border' : ''}`} 
+        />
+        {errors.email && <p className="error-text">{errors.email}</p>}
+
+        <label htmlFor="password" className="input-label">Enter your Password</label>
+        <input 
+          id="password" 
+          type="password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          placeholder="Enter your password" 
+          className={`input-field ${errors.password ? 'error-border' : ''}`} 
+        />
+        {errors.password && <p className="error-text">{errors.password}</p>}
+
+        <a href="#" className="forgot-password">Forgot Password?</a>
+        <button type="submit" className="sign-in-button">
+          {isSignUp ? 'Sign Up' : 'Sign In'}
+        </button>
+      </form>
       </div>
     </div>
   );
@@ -425,25 +421,22 @@ const FinancialTracker = () => {
   }, []);
 
   const handleResetTransactions = () => {
-    // Confirm before resetting
-    const confirmReset = window.confirm("Are you sure you want to delete all transactions? This cannot be undone.");
-    
+    const confirmReset = window.confirm(
+      "Are you sure you want to delete all transactions? This cannot be undone."
+    );
+
     if (confirmReset) {
-      // Update transactions in local state
       setTransactions([]);
 
-      // Update user data in localStorage
       const users = JSON.parse(localStorage.getItem(USER_DATA_KEY) || "[]");
       const userIndex = users.findIndex((u) => u.email === user.email);
 
       if (userIndex !== -1) {
-        // Clear transactions for this user
         users[userIndex] = {
           ...users[userIndex],
           transactions: [],
         };
 
-        // Update localStorage
         localStorage.setItem(USER_DATA_KEY, JSON.stringify(users));
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(users[userIndex]));
       }
@@ -461,7 +454,6 @@ const FinancialTracker = () => {
   };
 
   const handleAddTransaction = (newTransaction) => {
-    // Ensure the date is a Date object
     const processedTransaction = {
       ...newTransaction,
       date: new Date(newTransaction.date),
@@ -483,26 +475,23 @@ const FinancialTracker = () => {
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(users[userIndex]));
     }
   };
+
   const handleLogout = () => {
     localStorage.removeItem(CURRENT_USER_KEY);
     setUser(null);
     setTransactions([]);
   };
 
-  // Keyboard input for transaction modal
   useEffect(() => {
     const handleKeyboardInput = (event) => {
       if (isModalOpen) {
         const key = event.key;
         if (/^[0-9.]$/.test(key)) {
-          // Number or decimal input logic would go here
-          // You can call the existing handleNumberInput function
+          // Handle number input logic here
         } else if (key === "Backspace") {
-          // Backspace logic
-          // You can call the existing handleBackspace function
+          // Handle backspace logic here
         } else if (key === "Enter") {
-          // Add transaction logic
-          // You can call the existing handleAddTransaction function
+          // Handle enter logic for adding transactions here
         }
       }
     };
@@ -511,28 +500,6 @@ const FinancialTracker = () => {
     return () => window.removeEventListener("keydown", handleKeyboardInput);
   }, [isModalOpen]);
 
-  // Check for login
-  // if (!user) {
-  //   return <AuthPage onSignIn={handleSignIn} />;
-  // }
-  // // ]);
-  // const [searchQuery, setSearchQuery] = useState('');
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [filter, setFilter] = useState('ALL');
-
-  // const handleSignIn = (userData) => {
-  //   setUser(userData);
-  // };
-
-  // const handleAddTransaction = (newTransaction) => {
-  //   setTransactions([newTransaction, ...transactions]);
-  // };
-
-  // const handleLogout = () => {
-  //   setUser(null);
-  // };
-
-  // Check for login credentials
   if (!user) {
     return <AuthPage onSignIn={handleSignIn} />;
   }
@@ -605,9 +572,7 @@ const FinancialTracker = () => {
         <div className="bg-gray-800 rounded-2xl p-6">
           <div>
             <div className="text-gray-400 text-sm mb-1">Net Total</div>
-            <div className="text-2xl font-bold">
-              ₹ {totalBalance.toLocaleString()}
-            </div>
+            <div className="text-2xl font-bold">₹ {totalBalance.toLocaleString()}</div>
           </div>
 
           <div className="flex gap-2 mt-4">
@@ -628,39 +593,64 @@ const FinancialTracker = () => {
         </div>
 
         <div className="mt-6">
-          {filteredTransactions.map((transaction) => (
-            <div
-              key={transaction.id}
-              className="flex justify-between items-center bg-gray-800 rounded-lg p-4 mb-2"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">
-                  {CATEGORIES[transaction.category]?.icon || "📌"}
-                </span>
-                <div>
-                  <div className="font-medium">{transaction.type}</div>
-                  {transaction.note && (
-                    <div className="text-xs text-gray-400">
-                      {transaction.note}
-                    </div>
-                  )}
-                  <div className="text-xs text-gray-400">
-                    {/* Fallback date handling */}
-                    {transaction.date instanceof Date
-                      ? `${transaction.date.toLocaleDateString()} | ${transaction.date.toLocaleTimeString()}`
-                      : new Date(transaction.date).toLocaleString()}
+          {Object.entries(
+            filteredTransactions.reduce((acc, transaction) => {
+              const dateKey = new Date(transaction.date).toDateString();
+              if (!acc[dateKey]) acc[dateKey] = [];
+              acc[dateKey].push(transaction);
+              return acc;
+            }, {})
+          ).map(([date, transactions]) => {
+            const dailyTotal = transactions.reduce((sum, t) => sum + t.amount, 0);
+
+            return (
+              <div key={date} className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-gray-400">{date}</div>
+                  <div
+                    className={`font-bold ${
+                      dailyTotal > 0 ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    ₹ {dailyTotal.toLocaleString()}
                   </div>
                 </div>
+
+                {transactions.map((transaction) => (
+                  <div
+                    key={transaction.id}
+                    className="flex justify-between items-center bg-gray-800 rounded-lg p-4 mb-2"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">
+                        {CATEGORIES[transaction.category]?.icon || "📌"}
+                      </span>
+                      <div>
+                        <div className="font-medium">{transaction.type}</div>
+                        {transaction.note && (
+                          <div className="text-xs text-gray-400">
+                            {transaction.note}
+                          </div>
+                        )}
+                        <div className="text-xs text-gray-400">
+                          {new Date(transaction.date).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      className={`font-bold ${
+                        transaction.amount > 0
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      ₹ {Math.abs(transaction.amount).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div
-                className={`font-bold ${
-                  transaction.amount > 0 ? "text-green-500" : "text-red-500"
-                }`}
-              >
-                ₹ {Math.abs(transaction.amount).toLocaleString()}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
